@@ -72,6 +72,36 @@ app.get('/tasks', (req, res) => {
   res.send(tasks);
 });
 
+/**
+ * PUT /tasks/:id
+ * @summary Update a task by ID
+ * @param {number} id.path.required - The ID of the task to update
+ * @param {object} request.body.required - The updated task object
+ * @return {object} 200 - The updated task object
+ * @return {object} 404 - Task not found
+ */
+
+app.put('/tasks/:id', (req, res) => {
+  const taskId = parseInt(req.params.id);
+  const taskIndex = tasks.findIndex(t => t.id === taskId);
+  if (taskIndex === -1) {
+    return res.status(404).send({ error: `Task ${taskId} not found` });
+  }
+  const updatedTask = { ...tasks[taskIndex], ...req.body };
+  tasks[taskIndex] = updatedTask;
+  res.send(updatedTask);
+});
+
+app.delete('/tasks/:id', (req, res) => {
+  const taskId = parseInt(req.params.id);
+  const taskIndex = tasks.findIndex(t => t.id === taskId); 
+  if (taskIndex === -1) {
+    return res.status(404).send({ error: `Task ${taskId} not found` });
+  }
+  tasks.splice(taskIndex, 1);
+  res.send({ message: `Task ${taskId} deleted` });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });

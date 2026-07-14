@@ -1,6 +1,16 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const app = express();
+const swaggerUi = require('swagger-ui-express');
 app.use(express.json());
+
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'docs', 'openapi.json'), 'utf8')
+);
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 const port = 3000;
 
 const tasks = [

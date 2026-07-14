@@ -92,6 +92,14 @@ app.put('/tasks/:id', (req, res) => {
   res.send(updatedTask);
 });
 
+/**
+ * DELETE /tasks/:id
+ * @summary Delete a task by ID
+ * @param {number} id.path.required - The ID of the task to delete
+ * @return {object} 200 - Confirmation message
+ * @return {object} 404 - Task not found
+ */
+
 app.delete('/tasks/:id', (req, res) => {
   const taskId = parseInt(req.params.id);
   const taskIndex = tasks.findIndex(t => t.id === taskId); 
@@ -99,7 +107,7 @@ app.delete('/tasks/:id', (req, res) => {
     return res.status(404).send({ error: `Task ${taskId} not found` });
   }
   tasks.splice(taskIndex, 1);
-  res.send({ message: `Task ${taskId} deleted` });
+  res.status(204).send({ message: "No Content" });
 });
 
 app.listen(port, () => {

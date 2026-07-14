@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+app.use(express.json());
 const port = 3000;
 
 const tasks = [
@@ -35,9 +36,40 @@ app.get('/tasks/:id', (req, res) => {
   const taskId = parseInt(req.params.id);
   const task = tasks.find(t => t.id === taskId);
   if (!task) {
-    return res.status(404).send({ error: `Task${taskId} not found` });
+    return res.status(404).send({ error: `Task ${taskId} not found` });
   }
   res.send(task);
+});
+
+/**
+ * POST /tasks
+ * @summary Create a new task
+ * @param {object} request.body.required - The task object to create
+ * @return {object} 201 - The created task object
+ */
+
+app.post('/tasks', (req, res) => {
+  const newTask = {
+    id: tasks.length + 1,
+    title: req.body.title,
+    done: req.body.done || false
+  };
+
+  if (!newTask.title) {
+    return res.status(400).send({ error: 'Bad Request' });
+  }
+
+  tasks.push(newTask);
+  res.status(201).send(newTask);
+}); 
+
+/**
+ * GET /tasks
+ * @summary Get all tasks
+ * @return {array} 200 - An array of task objects
+ */
+app.get('/tasks', (req, res) => {
+  res.send(tasks);
 });
 
 app.listen(port, () => {

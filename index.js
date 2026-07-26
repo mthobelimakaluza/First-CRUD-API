@@ -85,6 +85,21 @@ app.get('/health', (req, res) => {
   );
 });
 
+/**
+ * GET /tasks
+ * @summary Get all tasks
+ * @return {array} 200 - An array of task objects
+ */
+app.get('/tasks', (req, res) => {
+  const getTasksQuery = 'SELECT * FROM tasks';
+  db.all(getTasksQuery, [], (err, rows) => {
+    if (err) {
+      return res.status(500).send({ error: 'Error retrieving tasks from database' });
+    }
+    res.send(rows);
+  });
+});
+
 
 /**
  * GET /tasks/:id
@@ -96,11 +111,16 @@ app.get('/health', (req, res) => {
 
 app.get('/tasks/:id', (req, res) => {
   const taskId = parseInt(req.params.id);
-  const task = tasks.find(t => t.id === taskId);
-  if (!task) {
-    return res.status(404).send({ error: `Task ${taskId} not found` });
-  }
-  res.send(task);
+  const getTaskQuery = 'SELECT * FROM tasks WHERE id = ?';
+  db.get(getTaskQuery, [taskId], (err, row) => {
+    if (err) {
+      return res.status(500).send({ error: 'Error retrieving task from database' });
+    }
+    if (!row) {
+      return res.status(404).send({ error: `Task ${taskId} not found` });
+    }
+    res.send(row);
+  });
 });
 
 /**
@@ -124,15 +144,6 @@ app.post('/tasks', (req, res) => {
   tasks.push(newTask);
   res.status(201).send(newTask);
 }); 
-
-/**
- * GET /tasks
- * @summary Get all tasks
- * @return {array} 200 - An array of task objects
- */
-app.get('/tasks', (req, res) => {
-  res.send(tasks);
-});
 
 /**
  * PUT /tasks/:id

@@ -1,8 +1,60 @@
+
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
 const swaggerUi = require('swagger-ui-express');
+const sqlite3 = require('sqlite3').verbose();
+
+// Opening 'tasks.db' database file
+const db = new sqlite3.Database('tasks.db', (err) => {
+  if (err) {
+    return console.error('Error opening database:', err);
+  }
+  console.log('Connected to the SQLite database.');
+});
+
+// SQL Statement
+const createTableQuery = `CREATE TABLE IF NOT EXISTS tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  done BOOLEAN DEFAULT 0
+)`;
+
+// Creating 'tasks' table if it doesn't exist
+db.run(createTableQuery, (err) => {
+  if (err) {
+    return console.error('Error creating tasks table:', err);
+  }
+  console.log('Tasks table created or already exists.');
+});
+
+// Inserting sample data into 'tasks' table if count is 0
+db.get('SELECT COUNT(*) AS count FROM tasks', (err, row) => {
+  if (err) {
+    return console.error('Error checking tasks count:', err);
+  }
+  if (row.count === 0) {
+    const sampleTasks = [
+      { title: 'Medication', done: 1 },
+      { title: 'Exercise', done: 0 },
+      { title: 'Rest', done: 0 }
+    ];
+    const insertQuery = 'INSERT INTO tasks (title, done) VALUES (?, ?)';
+    sampleTasks.forEach(task => {
+      db.run(insertQuery, [task.title, task.done], (err) => {
+        if (err) {
+          return console.error('Error inserting sample task:', err);
+        }
+        console.log(`Sample task inserted: ${task.title}`);
+      });
+    });
+  }
+  else {
+    console.log('Sample data already exists in the tasks table.');
+  }
+});
+
 app.use(express.json());
 
 const swaggerDocument = JSON.parse(

@@ -160,13 +160,22 @@ app.post('/tasks', (req, res) => {
 
 app.put('/tasks/:id', (req, res) => {
   const taskId = parseInt(req.params.id);
-  const taskIndex = tasks.findIndex(t => t.id === taskId);
-  if (taskIndex === -1) {
-    return res.status(404).send({ error: `Task ${taskId} not found` });
-  }
-  const updatedTask = { ...tasks[taskIndex], ...req.body };
-  tasks[taskIndex] = updatedTask;
-  res.send(updatedTask);
+  const { title, done } = req.body;
+  const updateTaskQuery = 'UPDATE tasks SET title = ?, done = ? WHERE id = ?';
+  db.run(updateTaskQuery, [title, done, taskId], function(err) {
+    if (err) {
+      return res.status(500).send({ error: 'Error updating task in database' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).send({ error: `Task ${taskId} not found` });
+    }
+    const updatedTask = {
+      id: taskId,
+      title,
+      done
+    };
+    res.send(updatedTask);
+  });
 });
 
 /**
@@ -179,12 +188,16 @@ app.put('/tasks/:id', (req, res) => {
 
 app.delete('/tasks/:id', (req, res) => {
   const taskId = parseInt(req.params.id);
-  const taskIndex = tasks.findIndex(t => t.id === taskId); 
-  if (taskIndex === -1) {
-    return res.status(404).send({ error: `Task ${taskId} not found` });
-  }
-  tasks.splice(taskIndex, 1);
-  res.status(204).send({ message: "No Content" });
+  const deleteTaskQuery = 'DELETE FROM tasks WHERE id = ?';
+  db.run(deleteTaskQuery, [taskId], function(err) {
+    if (err) {
+      return res.status(500).send({ error: 'Error deleting task from database' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).send({ error: `Task ${taskId} not found` });
+    }
+    res.status(204).send({ message: "No Content" });
+  });
 });
 
 app.listen(port, () => {

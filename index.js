@@ -131,19 +131,23 @@ app.get('/tasks/:id', (req, res) => {
  */
 
 app.post('/tasks', (req, res) => {
-  const newTask = {
-    id: tasks.length + 1,
-    title: req.body.title,
-    done: req.body.done || false
-  };
-
-  if (!newTask.title) {
+  const { title, done } = req.body;
+  const insertTaskQuery = 'INSERT INTO tasks (title, done) VALUES (?, ?)';
+  db.run(insertTaskQuery, [title, done], function(err) {
+    if (err) {
+      return res.status(500).send({ error: 'Error inserting task into database' });
+    }
+    const newTask = {
+      id: this.lastID,
+      title,
+      done
+    };
+    if (!newTask.title) {
     return res.status(400).send({ error: 'Bad Request' });
-  }
-
-  tasks.push(newTask);
-  res.status(201).send(newTask);
-}); 
+    }
+    res.status(201).send(newTask);
+  });
+});
 
 /**
  * PUT /tasks/:id

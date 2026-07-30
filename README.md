@@ -1,17 +1,14 @@
 # First CRUD API
 
-This project is a simple Express.js CRUD API for managing tasks. It includes endpoints to list, create, read, update, and delete tasks, plus a basic health check and Swagger documentation.
+A simple Express.js CRUD API for managing tasks. The app uses SQLite for persistent storage and includes Swagger documentation.
 
 ## Features
 
-- Get API information
-- Check server health
-- List all tasks
-- Create a new task
-- Get a single task by ID
-- Update a task by ID
-- Delete a task by ID
-- Swagger UI documentation at `/docs`
+- Create, read, update, and delete tasks
+- Store tasks in a SQLite database file named `tasks.db`
+- Automatically create the `tasks` table on startup
+- Insert sample tasks if the database is empty
+- Swagger UI available at `/docs`
 
 ## Requirements
 

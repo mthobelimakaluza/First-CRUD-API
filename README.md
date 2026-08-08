@@ -127,5 +127,3 @@ curl -X DELETE http://localhost:3000/tasks/1
 ```
 
 ## Notes
-
-The app uses an in-memory array for tasks, so data will reset when the server restarts.
